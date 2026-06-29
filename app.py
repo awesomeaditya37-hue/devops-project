@@ -1,11 +1,16 @@
 from flask import Flask
+import os
 import datetime
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Devops project 1 is running"
+    environment = os.getenv("Environment","development")
+    return {
+            "message":"Devops project 1 is running",
+            "environment":environment
+            }
 
 @app.route("/health")
 def health():
