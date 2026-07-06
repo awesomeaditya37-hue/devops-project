@@ -1,28 +1,16 @@
-from flask import Flask
+from flask import Flask, jsonify
 import os
-import datetime
-
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    environment = os.getenv("Environment","development")
-    return {
-            "message":"Devops project 1 is running",
-            "environment":environment
-            }
+    return jsonify({"message": "Flask devops projecs",
+                     "version": "1.0.0", 
+                     "environment": os.getenv("environment","development")})
 
 @app.route("/health")
 def health():
-    return {"Status":"Healthy"}
-
-@app.route("/time")
-def time():
-    return { 
-            "current_time":
-            str(datetime.datetime.now())
-            }
+    return jsonify({"status": "healthy"}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
