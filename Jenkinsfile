@@ -1,0 +1,53 @@
+pipeline { 
+    agent any
+    
+    stages {
+        stage('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Install dependencies') {
+            steps {
+                sh '''
+		python3 -m venv venv
+		. venv/bin/activate
+		pip install --upgrade pip
+		pip install -r requirements.txt
+		'''
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                sh 'pytest'
+            }
+        }
+	stage('Docker image creation') {
+	    steps {
+		sh 'docker build -t flask-devops:${BUILD_NUMBER} .'
+	    }
+        }
+	stage('Deploy') {
+	    steps {
+		sh '''
+		docker compose down || true
+		export IMAGE_TAG=${BUILD_NUMBER}
+		docker compose up -d
+		'''
+	    }
+	}	
+
+	}
+    post {
+        success {
+            echo 'Pipeline Successful'
+        }
+        failure {
+            echo 'Pipeline failed'
+        }
+        always {
+            cleanWs()
+        }
+    }
+
+}
