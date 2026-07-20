@@ -1,0 +1,34 @@
+services:
+  flask:
+    image: flask-devops:${IMAGE_TAG}
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: postgres
+      DB_NAME: flaskdb
+      DB_USER: admin
+      DB_PASSWORD: password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: FLASKDB
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
